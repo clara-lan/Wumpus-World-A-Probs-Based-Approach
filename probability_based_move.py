@@ -58,20 +58,33 @@ def PitWumpus_probability_distribution(self, width, height):
     fringe = []
     fringe = list(self.available_rooms)
     known_BS = self.observation_breeze_stench(self.visited_rooms)
+    #JiaoyueLan: get visited pits
     known_PW = self.observation_pits(self.visited_rooms)
 
     P = JointProbDist(fringe, { each:[T, F] for each in fringe })
 
+    #JiaoyueLan: return events joint probability
     events = all_events_jpd(fringe, P, known_PW)
+    # for each in events:
+    #     prob = 1
+    #     for (val, val) in each.items():
+    #         if val:
+    #             prob *= .2
+    #         else:
+    #             prob *= .8
+    #     P[each] = self.consistent(known_BS, each) * prob
+    room_count = width*height
+    # true 0.2: is a pit
+    # false 0.8: no pit
+    p_true = 0.2
+    p_false = 0.8
     for each in events:
-        prob = 1
-        for (var, val) in each.items():
-            if val:
-                prob *= .2
-            else:
-                prob *= .8
-        P[each] = self.consistent(known_BS, each) * prob
-
+        count = 0
+        for val in each.values():
+            if val == True:
+                count += 1
+        #JiaoyueLan: P[each] = (0.2**pit_number) * (0.8**(room_count-pit_number))
+        P[each] = (p_true ** count) * (p_false**(room_count-count))
     return P
 
 
